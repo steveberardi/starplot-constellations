@@ -12,6 +12,7 @@ HERE = Path(__file__).resolve().parent
 DATA_PATH = HERE / "data"
 BUILD_PATH = HERE / "build"
 
+
 def parse_ra(ra_str):
     """Parses RA from border file HH MM SS to 0...360 degree float"""
     h, m, s = ra_str.strip().split(" ")
@@ -86,6 +87,7 @@ def build():
         compression="none",
         row_group_size=100,
     )
+
 
 if __name__ == "__main__":
     build()

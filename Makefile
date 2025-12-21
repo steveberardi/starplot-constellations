@@ -13,14 +13,9 @@ VERSION_CHECK=$(shell gh release list \
 # Development ------------------------------------------
 install: venv/bin/activate
 
-lint: venv/bin/activate
-	@$(PYTHON) -m ruff check src/ $(ARGS)
-
 format: venv/bin/activate
-	@$(PYTHON) -m black . $(ARGS)
-
-test: venv/bin/activate
-	PYTHONPATH=./src/ $(PYTHON) -m pytest --cov=src/ --cov-report=term --cov-report=html src/
+	@$(PYTHON) -m ruff format build.py $(ARGS)
+	@$(PYTHON) -m ruff check build.py --fix $(ARGS)
 
 venv/bin/activate: requirements.txt
 	python -m venv venv
@@ -53,7 +48,7 @@ release: release-check
 		v$(VERSION) \
 		build/constellations.$(VERSION).parquet \
 		--title "v$(VERSION)" \
-		-R steveberardi/starplot-constellations
+		-R steveberardi/$(REPO_NAME)
 
 version: venv/bin/activate
 	@echo $(VERSION)
