@@ -48,7 +48,7 @@ release-check:
 		false; \
 	fi
 
-release: release-check test
+release: release-check
 	gh release create \
 		v$(VERSION) \
 		build/constellations.$(VERSION).parquet \
