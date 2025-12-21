@@ -70,7 +70,7 @@ def constellations():
 def build():
     Catalog.build(
         objects=constellations(),
-        path=BUILD_PATH / "constellations.parquet",
+        path=BUILD_PATH / f"constellations.{__version__}.parquet",
         chunk_size=100,
         columns=[
             "name",
