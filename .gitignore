@@ -1,4 +1,3 @@
-
 .DS_Store
 
 # Byte-compiled / optimized / DLL files
@@ -28,6 +27,8 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+duckdb-extensions/
 *.parquet
 
 # PyInstaller
