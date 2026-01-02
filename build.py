@@ -89,9 +89,9 @@ def constellations():
 def build():
     logger.info("Building Constellations - IAU...")
     output_path = BUILD_PATH / f"constellations.{__version__}.parquet"
-    Catalog.build(
+    catalog = Catalog(path=output_path)
+    catalog.build(
         objects=constellations(),
-        path=output_path,
         chunk_size=100,
         columns=[
             "pk",
@@ -109,13 +109,12 @@ def build():
         row_group_size=100,
     )
 
-    cat = Catalog(path=output_path)
-    all_constellations = [c for c in Constellation.all(catalog=cat)]
+    all_constellations = [c for c in Constellation.all(catalog=catalog)]
 
     logger.info(f"Total objects: {len(all_constellations)}")
     assert len(all_constellations) == 89
 
-    cma = Constellation.get(iau_id="cma", catalog=cat)
+    cma = Constellation.get(iau_id="cma", catalog=catalog)
     assert cma.name == "Canis Major"
     assert cma.star_hip_ids == [
         35904,
