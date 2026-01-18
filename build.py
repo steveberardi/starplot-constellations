@@ -2,9 +2,9 @@ import json
 import logging
 from pathlib import Path
 
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, LineString
 
-from starplot import Constellation
+from starplot import Constellation, ConstellationBorder
 from starplot.data import Catalog
 
 __version__ = "0.1.2"
@@ -133,5 +133,46 @@ def build():
     logger.info("Done!")
 
 
+def constellation_borders():
+    ctr = 0
+    with open(DATA_PATH / "constellation_borders.json", "r") as infile:
+        data = json.loads(infile.read())
+
+        for feature in data["features"]:
+            ctr += 1
+            coordinates = feature["geometry"]["coordinates"]
+            geometry = LineString(coordinates)
+            ra = round(geometry.centroid.x, 4)
+            dec = round(geometry.centroid.y, 4)
+
+            yield ConstellationBorder(
+                pk=ctr,
+                ra=ra,
+                dec=dec,
+                geometry=geometry,
+            )
+
+
+def build_borders():
+    logger.info("Building Constellation Border Catalog...")
+    output_path = BUILD_PATH / f"constellations-borders.{__version__}.parquet"
+    catalog = Catalog(path=output_path)
+    catalog.build(
+        objects=constellation_borders(),
+        chunk_size=200_000,
+        columns=[
+            "pk",
+            "ra",
+            "dec",
+            "geometry",
+        ],
+        partition_columns=[],
+        compression="none",
+        row_group_size=100_000,
+    )
+    logger.info("Done!")
+
+
 if __name__ == "__main__":
     build()
+    build_borders()

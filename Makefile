@@ -53,6 +53,7 @@ release: release-check
 	gh release create \
 		v$(VERSION) \
 		build/constellations.$(VERSION).parquet \
+		build/constellations-borders.$(VERSION).parquet \
 		--title "v$(VERSION)" \
 		-R steveberardi/$(REPO_NAME)
 
