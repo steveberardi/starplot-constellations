@@ -7,7 +7,7 @@ from shapely.geometry import Polygon, LineString
 from starplot import Constellation, ConstellationBorder
 from starplot.data import Catalog
 
-__version__ = "0.1.2"
+__version__ = "0.2.0"
 
 HERE = Path(__file__).resolve().parent
 DATA_PATH = HERE / "data"
