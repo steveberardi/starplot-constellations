@@ -1,27 +1,27 @@
 import numpy as np
 
-from shapely.geometry import Polygon, LineString, MultiPolygon
+from shapely.geometry import Polygon, LineString
 from shapely.ops import split
 from shapely import union_all
 
 MERIDIAN = LineString([(360, 90), (360, -90)])
 
+
 def split_polygon_with_line(polygon, line=MERIDIAN):
     """Split a polygon with a line."""
     if not polygon.intersects(line):
         return [polygon]
-    
+
     result = split(polygon, line)
-    
+
     polygons = []
     for geom in result.geoms:
-        if geom.geom_type == 'Polygon':
+        if geom.geom_type == "Polygon":
             polygons.append(geom)
-        elif geom.geom_type == 'MultiPolygon':
+        elif geom.geom_type == "MultiPolygon":
             polygons.extend(list(geom.geoms))
-    
-    return polygons if polygons else [polygon]
 
+    return polygons if polygons else [polygon]
 
 
 def normalize_to_360(polygon: Polygon) -> Polygon:
@@ -61,4 +61,3 @@ def interpolate(a, b, num_points=100):
     p2 = np.array(b)
     t = np.linspace(0, 1, num_points)
     return p1 + t[:, np.newaxis] * (p2 - p1)
-

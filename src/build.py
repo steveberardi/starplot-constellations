@@ -9,14 +9,16 @@ from shapely.geometry import Polygon, MultiPolygon, LineString
 from starplot import Constellation, ConstellationBorder
 from starplot.data import Catalog
 
-from plot import create_plots
-from geometry import split_polygon_with_line, interpolate, normalize_to_360
+from . import addons
+from .plot import create_plots
+from .geometry import split_polygon_with_line, normalize_to_360
+
 
 __version__ = "0.3.0"
 
-HERE = Path(__file__).resolve().parent
-DATA_PATH = HERE / "data"
-BUILD_PATH = HERE / "build"
+ROOT = Path(__file__).resolve().parent.parent
+DATA_PATH = ROOT / "data"
+BUILD_PATH = ROOT / "build"
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -44,71 +46,6 @@ def parse_dec(dec_str):
     return round(float(dec_str), 6)
 
 
-def umi():
-    p0 = interpolate(
-        (0, 88.6638870),
-        (135.832471, 87.66638870),
-    )
-    p1 = interpolate(
-        (135.832471, 87.66638870),
-        (339.260988, 88.6638870),
-    )
-    p2 = interpolate(
-        (339.260988, 88.6638870),
-        (360, 88.6638870),
-    )
-
-    points = [
-        (0, 90),
-        *p0,
-        *p1,
-        *p2,
-        [339.260988, 88.6638870],
-        [360, 88.6638870],
-        [360, 90],
-    ]
-
-    points = reversed(points)
-    return Polygon(points).segmentize(1)
-
-
-def octans():
-    # 03 12 55.9008|-84.5553818|OCT
-    # 07 16 04.7301|-85.2614441|OCT
-    p0 = interpolate(
-        (48.23292, -84.5553818),
-        (109.0197087495, -85.2614441),
-    )
-    points = [
-        (0, -90),
-        (0, -84.5553818),
-        *p0,
-        (109.0197087495, -84.5553818),
-        (360, -84.5553818),
-        [360, -90],
-    ]
-
-    points = reversed(points)
-    return Polygon(points).segmentize(1)
-
-
-def cepheus():
-    points = [
-        (313.705874, 80.486786),
-        (308.72097, 86.465622),
-        (308.331355, 86.63063),
-        (343.510666, 86.836891),
-        (339.260988, 88.663887),
-        (360 + 135.832471, 87.568916),
-        (360 + 130.40275, 86.097542),
-        (360 + 127.953615, 84.610375),
-        (360 + 84.536118, 85.123947),
-    ]
-
-    points = reversed(points)
-    return Polygon(points).segmentize(1)
-
-
 def parse_borders(constellation_id):
     coords = []
 
@@ -129,20 +66,18 @@ def parse_borders(constellation_id):
     )
 
     if constellation_id == "umi":
-        geometry = union_all([geometry, umi()])
+        geometry = union_all([geometry, addons.ursa_minor()])
 
     if constellation_id == "oct":
-        geometry = union_all([geometry, octans()])
+        geometry = union_all([geometry, addons.octans()])
 
     if constellation_id == "cep":
-        geometry = union_all([geometry, cepheus()])
+        geometry = union_all([geometry, addons.cepheus()])
 
     geometry = split_polygon_with_line(geometry)
     geometry = geometry[0] if len(geometry) == 1 else MultiPolygon(geometry)
 
     return geometry
-
-
 
 
 def read_properties():
@@ -220,7 +155,7 @@ def build():
         32349,
     ]
 
-    create_plots(catalog, build_path=BUILD_PATH)
+    create_plots(catalog, build_path=BUILD_PATH, logger=logger)
     logger.info("Checks passed!")
     logger.info("Done!")
 

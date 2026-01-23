@@ -3,7 +3,7 @@ PYTHON=./venv/bin/python
 
 REPO_NAME=starplot-constellations
 
-VERSION=$(shell ./venv/bin/python -c 'from build import __version__; print(__version__)')
+VERSION=$(shell ./venv/bin/python -c 'from src.build import __version__; print(__version__)')
 VERSION_CHECK=$(shell gh release list \
 		-R steveberardi/$(REPO_NAME) \
 		--limit 1000 \
@@ -14,12 +14,13 @@ VERSION_CHECK=$(shell gh release list \
 # Environment Variables ------------------------------------------
 export STARPLOT_DATA_PATH=./data/
 
+
 # Development ------------------------------------------
 install: venv/bin/activate
 
 format: venv/bin/activate
-	@$(PYTHON) -m ruff format build.py $(ARGS)
-	@$(PYTHON) -m ruff check build.py --fix $(ARGS)
+	@$(PYTHON) -m ruff format src/ $(ARGS)
+	@$(PYTHON) -m ruff check src/ --fix $(ARGS)
 
 venv/bin/activate: requirements.txt
 	python -m venv venv
@@ -37,7 +38,7 @@ build: venv/bin/activate
 	rm -rf build
 	rm -f build.log
 	@mkdir -p build
-	$(PYTHON) build.py
+	$(PYTHON) -m src.build
 
 # Releases ------------------------------------------
 release-check:

@@ -1,11 +1,10 @@
 from starplot.styles import PlotStyle, extensions
 from starplot import MapPlot, Miller, StereoNorth, StereoSouth, Constellation, _
 
-from geometry import union_at_zero
+from .geometry import union_at_zero
 
-def create_plots(catalog, build_path):
-    
 
+def create_plots(catalog, build_path, logger):
     style = PlotStyle().extend(
         extensions.BLUE_NIGHT,
         extensions.MAP,
@@ -20,28 +19,25 @@ def create_plots(catalog, build_path):
         # "cet",
         # "scl",
         # "phe",
-        # "dra",  # Good !
+        # "dra",
         "umi",
         # "oct",
         "cep",
     ]
 
-    for cons in Constellation.find(where=[_.iau_id.isin(conids)], catalog=catalog):
-    # for cons in Constellation.all(catalog=catalog):
+    for cons in Constellation.all(catalog=catalog):
+        # for cons in Constellation.find(where=[_.iau_id.isin(conids)], catalog=catalog):
+        logger.info(f"Plotting: {cons.iau_id} | {cons.name}")
+
         boundary = cons.boundary
         extent = boundary.bounds  # bbox (minx, miny, maxx, maxy)
 
         if boundary.geom_type == "MultiPolygon":
             # TODO : this needs to go in model from_tuple
             boundary = union_at_zero(boundary.geoms[0], boundary.geoms[1])
-            print(cons.iau_id, "is multi")
-
-        extent = boundary.bounds  # bbox (minx, miny, maxx, maxy)
 
         if extent[0] < 0:
             extent = (extent[0] + 360, extent[1], extent[2] + 360, extent[3])
-
-        print(cons.iau_id, extent)
 
         if cons.dec > 60:
             proj = StereoNorth
@@ -77,9 +73,7 @@ def create_plots(catalog, build_path):
         #         edge_color="red",
         #     ),
         # )
-        p.stars(
-            where=[_.magnitude < 6], where_labels=[_.magnitude < 4]
-        )
+        p.stars(where=[_.magnitude < 6], where_labels=[_.magnitude < 4])
         p.constellation_labels()
         p.constellation_borders()
         p.ax.set_axis_off()  # hide the axis background that's outside the clip path
