@@ -27,9 +27,9 @@ file_handler = logging.FileHandler("build.log", mode="a")
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 formatter = logging.Formatter(
-    "{asctime} - {levelname} - {message}",
+    "{asctime} - {message}",
     style="{",
-    datefmt="%Y-%m-%d %H:%M:%S",
+    datefmt="%H:%M:%S",
 )
 console_handler.setFormatter(formatter)
 file_handler.setFormatter(formatter)
