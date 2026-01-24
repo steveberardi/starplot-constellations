@@ -11,10 +11,10 @@ from starplot.data import Catalog
 
 from . import addons
 from .plot import create_plots
-from .geometry import split_polygon_with_line, normalize_to_360
+from .geometry import split_polygon_with_line, normalize_to_360, restrict_to_360
 
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = ROOT / "data"
@@ -75,6 +75,7 @@ def parse_borders(constellation_id):
         geometry = union_all([geometry, addons.cepheus()])
 
     geometry = split_polygon_with_line(geometry)
+    geometry = [restrict_to_360(g) for g in geometry]
     geometry = geometry[0] if len(geometry) == 1 else MultiPolygon(geometry)
 
     return geometry

@@ -1,7 +1,21 @@
 from starplot.styles import PlotStyle, extensions
 from starplot import MapPlot, Miller, StereoNorth, StereoSouth, Constellation, _
-
+from shapely import Polygon, union_all
 from .geometry import union_at_zero
+
+
+def union(a: Polygon, b: Polygon) -> Polygon:
+    """Returns union of two polygons"""
+    a_ra = list(a.exterior.coords.xy)[0]
+    b_ra = list(b.exterior.coords.xy)[0]
+
+    points = list(zip(*b.exterior.coords.xy))
+    b = Polygon([[ra + 360, dec] for ra, dec in points])
+
+    points = list(zip(*a.exterior.coords.xy))
+    a = Polygon([[ra + 360, dec] for ra, dec in points])
+
+    return union_all([a, b])
 
 
 def create_plots(catalog, build_path, logger):
@@ -11,7 +25,7 @@ def create_plots(catalog, build_path, logger):
     )
 
     # conids = [
-    #     "and",
+    #     # "and",
     #     # "cma",
     #     # "tuc",
     #     # "cas",
@@ -19,22 +33,22 @@ def create_plots(catalog, build_path, logger):
     #     # "cet",
     #     # "scl",
     #     # "phe",
-    #     # "dra",
+    #     "dra",
     #     "umi",
-    #     # "oct",
-    #     "cep",
+    #     "oct",
+    #     # "cep",
     # ]
 
     for cons in Constellation.all(catalog=catalog):
         # for cons in Constellation.find(where=[_.iau_id.isin(conids)], catalog=catalog):
         logger.info(f"Plotting: {cons.iau_id} | {cons.name}")
-
         boundary = cons.boundary
-        extent = boundary.bounds  # bbox (minx, miny, maxx, maxy)
 
         if boundary.geom_type == "MultiPolygon":
             # TODO : this needs to go in model from_tuple
             boundary = union_at_zero(boundary.geoms[0], boundary.geoms[1])
+
+        extent = boundary.bounds  # bbox (minx, miny, maxx, maxy)
 
         if extent[0] < 0:
             extent = (extent[0] + 360, extent[1], extent[2] + 360, extent[3])
@@ -70,7 +84,7 @@ def create_plots(catalog, build_path, logger):
         #     style=PolygonStyle(
         #         fill_color=None,
         #         line_style="dashed",
-        #         edge_color="red",
+        #         color="red",
         #     ),
         # )
         p.stars(where=[_.magnitude < 6], where_labels=[_.magnitude < 4])

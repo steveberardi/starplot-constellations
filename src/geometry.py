@@ -47,11 +47,11 @@ def union_at_zero(a: Polygon, b: Polygon) -> Polygon:
 
     if max(a_ra) == 360 and min(b_ra) == 0:
         points = list(zip(*b.exterior.coords.xy))
-        return a, Polygon([[ra + 360, dec] for ra, dec in points])
+        b = Polygon([[ra + 360, dec] for ra, dec in points])
 
     if min(a_ra) == 0 and max(b_ra) == 360:
         points = list(zip(*a.exterior.coords.xy))
-        return Polygon([[ra + 360, dec] for ra, dec in points]), b
+        a = Polygon([[ra + 360, dec] for ra, dec in points])
 
     return union_all([a, b])
 
@@ -61,3 +61,16 @@ def interpolate(a, b, num_points=100):
     p2 = np.array(b)
     t = np.linspace(0, 1, num_points)
     return p1 + t[:, np.newaxis] * (p2 - p1)
+
+
+def restrict_to_360(polygon: Polygon) -> Polygon:
+    """
+    If the polygon has a max RA over 360, then subtract 360 from all RA coordinates.
+    """
+    ra, dec = [p for p in polygon.exterior.coords.xy]
+
+    if max(ra) > 360:
+        new_ra = [r - 360 for r in ra]
+        return Polygon(list(zip(new_ra, dec)))
+
+    return polygon
