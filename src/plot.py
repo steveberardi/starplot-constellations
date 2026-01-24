@@ -10,20 +10,20 @@ def create_plots(catalog, build_path, logger):
         extensions.MAP,
     )
 
-    conids = [
-        "and",
-        # "cma",
-        # "tuc",
-        # "cas",
-        # "psc",
-        # "cet",
-        # "scl",
-        # "phe",
-        # "dra",
-        "umi",
-        # "oct",
-        "cep",
-    ]
+    # conids = [
+    #     "and",
+    #     # "cma",
+    #     # "tuc",
+    #     # "cas",
+    #     # "psc",
+    #     # "cet",
+    #     # "scl",
+    #     # "phe",
+    #     # "dra",
+    #     "umi",
+    #     # "oct",
+    #     "cep",
+    # ]
 
     for cons in Constellation.all(catalog=catalog):
         # for cons in Constellation.find(where=[_.iau_id.isin(conids)], catalog=catalog):
@@ -57,7 +57,7 @@ def create_plots(catalog, build_path, logger):
             dec_min=extent[1],
             dec_max=extent[3],
             style=style,
-            resolution=2400,
+            resolution=2000,
             clip_path=boundary,
             autoscale=True,
         )

@@ -6,7 +6,7 @@ from pathlib import Path
 from shapely import union_all
 from shapely.geometry import Polygon, MultiPolygon, LineString
 
-from starplot import Constellation, ConstellationBorder
+from starplot import Star, Constellation, ConstellationBorder
 from starplot.data import Catalog
 
 from . import addons
@@ -155,9 +155,14 @@ def build():
         32349,
     ]
 
-    create_plots(catalog, build_path=BUILD_PATH, logger=logger)
+    umi = Constellation.get(iau_id="umi", catalog=catalog)
+    polaris = Star.get(name="Polaris")
+    assert polaris.geometry.intersects(umi.boundary)
+
     logger.info("Checks passed!")
     logger.info("Done!")
+
+    create_plots(catalog, build_path=BUILD_PATH, logger=logger)
 
 
 def constellation_borders():
