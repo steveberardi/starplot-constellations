@@ -58,6 +58,7 @@ def parse_borders(constellation_id):
             dec = parse_dec(dec_str)
             coords.append((ra, dec))
 
+    line = LineString(coords)
     geometry = Polygon(coords)
     geometry = (
         normalize_to_360(geometry)
@@ -78,7 +79,7 @@ def parse_borders(constellation_id):
     geometry = [restrict_to_360(g) for g in geometry]
     geometry = geometry[0] if len(geometry) == 1 else MultiPolygon(geometry)
 
-    return geometry
+    return geometry, line
 
 
 def read_properties():
@@ -99,6 +100,7 @@ def constellations():
         hip_ids = list(hip_ids)
 
         ctr += 1
+        boundary, border = parse_borders(constellation_id)
         c = Constellation(
             pk=ctr,
             name=props["name"],
@@ -108,7 +110,8 @@ def constellations():
             constellation_id=constellation_id,
             star_hip_ids=hip_ids,
             star_hip_lines=hiplines,
-            boundary=parse_borders(constellation_id),
+            boundary=boundary,
+            border=border,
         )
         yield c
 
@@ -130,6 +133,7 @@ def build():
             "star_hip_ids",
             "star_hip_lines",
             "boundary",
+            "border",
         ],
         sorting_columns=[],
         compression="none",
