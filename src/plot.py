@@ -1,8 +1,6 @@
 from starplot.styles import PlotStyle, extensions
 from starplot import MapPlot, Miller, StereoNorth, StereoSouth, Constellation, _
-from shapely import LineString
 from .geometry import union_at_zero
-
 
 
 def create_plots(catalog, build_path, logger):
@@ -71,22 +69,8 @@ def create_plots(catalog, build_path, logger):
             catalog=catalog,
         )
 
-        coords = [c for c in cons.border.coords]
-
-        coords.append(coords[0])
-
-        extended = [coords[0]]
-        for i, radec in enumerate(coords[1:]):
-            ra, dec = radec
-            if abs(ra - extended[i][0]) > 180:
-                ra += 360
-
-            extended.append([ra, dec])
-
-        ls = LineString(extended).segmentize(1)
-
         p.line(
-            ls.coords,
+            cons.border.coords,
             style=p.style.constellation_borders,
         )
 

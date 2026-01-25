@@ -14,7 +14,7 @@ from .plot import create_plots
 from .geometry import split_polygon_with_line, normalize_to_360, restrict_to_360
 
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = ROOT / "data"
@@ -46,6 +46,20 @@ def parse_dec(dec_str):
     return round(float(dec_str), 6)
 
 
+def extend_border(coords):
+    coords_copy = [c for c in coords]
+    result = [coords_copy[0]]
+    coords_copy.append(coords_copy[0])
+
+    for i, radec in enumerate(coords_copy[1:]):
+        ra, dec = radec
+        if abs(ra - result[i][0]) > 180:
+            ra += 360
+
+        result.append([ra, dec])
+    return result
+
+
 def parse_borders(constellation_id):
     coords = []
 
@@ -58,7 +72,8 @@ def parse_borders(constellation_id):
             dec = parse_dec(dec_str)
             coords.append((ra, dec))
 
-    line = LineString(coords)
+    line = LineString(extend_border(coords)).segmentize(1)
+
     geometry = Polygon(coords)
     geometry = (
         normalize_to_360(geometry)
