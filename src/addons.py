@@ -2,6 +2,41 @@ from shapely.geometry import Polygon
 
 from .geometry import interpolate
 
+reverse = [
+    "ant",
+    "aps",
+    "cae",
+    "cap",
+    "car",
+    "cen",
+    "cha",
+    "cir",
+    "crt",
+    "cru",
+    "crv",
+    "dor",
+    "gru",
+    "ind",
+    "lep",
+    "lib",
+    "lup",
+    "mus",
+    "nor",
+    "pav",
+    "phe",
+    "pic",
+    "psa",
+    "pup",
+    "ret",
+    "sct",
+    "sgr",
+    "tel",
+    "tuc",
+    "umi",
+    "vel",
+    "vol",
+]
+
 
 def ursa_minor():
     p0 = interpolate(

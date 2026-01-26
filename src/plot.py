@@ -1,6 +1,7 @@
+from shapely import Polygon
+
 from starplot.styles import PlotStyle, extensions
 from starplot import MapPlot, Miller, StereoNorth, StereoSouth, Constellation, _
-from .geometry import union_at_zero
 
 
 def create_plots(catalog, build_path, logger):
@@ -25,22 +26,19 @@ def create_plots(catalog, build_path, logger):
     ]
     conids = [c.iau_id for c in Constellation.all(catalog=catalog)]
 
-    # for cons in Constellation.all(catalog=catalog):
     for cons in Constellation.find(where=[_.iau_id.isin(conids)], catalog=catalog):
         logger.info(f"Plotting: {cons.iau_id} | {cons.name}")
-        boundary = cons.boundary
 
-        if boundary.geom_type == "MultiPolygon":
-            # TODO : this needs to go in model from_tuple
-            boundary = union_at_zero(boundary.geoms[0], boundary.geoms[1])
-
-        extent = boundary.bounds  # bbox (minx, miny, maxx, maxy)
+        ra, dec = [p for p in cons.border.coords.xy]
+        extent = (
+            min(ra) - 2,
+            max(min(dec) - 2, -90),
+            max(ra) + 2,
+            min(max(dec) + 2, 90),
+        )
 
         if extent[0] < 0:
             extent = (extent[0] + 360, extent[1], extent[2] + 360, extent[3])
-
-        # ra, dec = [p for p in cons.border.coords.xy]
-        # extent = (min(ra), min(dec), max(ra), max(dec))
 
         if cons.dec > 60:
             proj = StereoNorth
@@ -49,8 +47,10 @@ def create_plots(catalog, build_path, logger):
         else:
             proj = Miller
 
-        center_ra = max((extent[0] + extent[2]) / 2, 0)
-        if center_ra > 360:
+        center_ra = (extent[0] + extent[2]) / 2
+        if center_ra < 0:
+            center_ra += 360
+        elif center_ra > 360:
             center_ra -= 360
 
         p = MapPlot(
@@ -61,7 +61,7 @@ def create_plots(catalog, build_path, logger):
             dec_max=extent[3],
             style=style,
             resolution=2000,
-            clip_path=boundary,
+            clip_path=Polygon(cons.border.coords),
             scale=0.8,
         )
         p.constellations(
@@ -75,11 +75,8 @@ def create_plots(catalog, build_path, logger):
         )
 
         # p.polygon(
-        #     geometry=boundary,
-        #     style=dict(
-        #         line_style =(0, (4, 3)),
-        #         edge_color = "red",
-        #     )
+        #     geometry=Polygon(cons.border.coords),
+        #     style={"color": "yellow", "alpha": 0.1},
         # )
 
         p.stars(

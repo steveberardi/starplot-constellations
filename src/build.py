@@ -14,7 +14,7 @@ from .plot import create_plots
 from .geometry import split_polygon_with_line, normalize_to_360, restrict_to_360
 
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = ROOT / "data"
@@ -72,7 +72,11 @@ def parse_borders(constellation_id):
             dec = parse_dec(dec_str)
             coords.append((ra, dec))
 
-    line = LineString(extend_border(coords)).segmentize(1)
+    line_coords = extend_border(coords)
+    line_coords = (
+        reversed(line_coords) if constellation_id in addons.reverse else line_coords
+    )
+    line = LineString(line_coords).segmentize(1)
 
     geometry = Polygon(coords)
     geometry = (
